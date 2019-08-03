@@ -1,4 +1,4 @@
-//pass wood 2
+//升級到惹 Bronze .. 
 #include <iostream>
 #include <string>
 #include <vector>
@@ -11,14 +11,44 @@ using namespace std;
  * the standard input according to the problem statement.
  **/
 
+/*
+Wood 3
+規則講解 總共兩階段 選卡 and 打牌
+選卡: Pick X (選擇第X張) PASS 會選擇第一張
+
+打牌: 第一個玩家手牌4張 第二玩家5張
+第一玩家 1 max mana 第二玩家 2 max mana
+可以使用到自己的max mana 
+第二玩家會收到 +1 max mana bonus 直到他某回合用完
+每一回合+1 mana
+
+第一階段 Types 只有 Creatures
+Creatures 有一個攻擊點數 和 防禦點數
+剛被召喚是不能攻擊的 一回合攻擊一次
+
+有哪些操作
+SUMMON id : 召喚id 生物出來
+ATTACK id1 id2: 用 id1 生物 攻擊 id2 生物
+ATTACK id -1: id 生物直接攻擊對手
+PASS : 不做事
+可以多次做事，用;分開
+有一方HP = 0 就結束遊戲
+
+GameInput 
+Draft 階段 mana 都是 0
+player 0 是自己 1 是對手
+
+*/
+
 struct Player
 {
-    int Health = 0,Mana = 0,Deck = 0,Rune = 0;
+    int Health = 0,Mana = 0,Deck = 0,Rune = 0, Draw = 0;
     /*
         int playerHealth; // 血量30~ 0
-        int playerMana; // max = 12
+        int playerMana; // max = 12, 2號可以13
         int playerDeck; // 甲板有多少牌
-        int playerRune; //現在用不到--
+        int playerRune; //現在用不到
+        int playerDraw; // 現在用不到
     */
 };
 
@@ -27,7 +57,7 @@ struct Card
     int cardNumber,instanceId,location,cardType,cost,attack,defense,myHealthChange,opponentHealthChange,cardDraw;
     string abilities;
     /*
-            int cardNumber; //卡的id? 一樣的卡就會一樣
+            int cardNumber; //卡的號碼 一樣的卡就會一樣 (一種怪獸就是一個號碼)
             int instanceId; //卡的id 在你手上的順序?要使用 每張卡都不一樣  要攻擊也是打這個
             int location;  //0 = 我的手 1 = 我的牌面 -1 敵人牌面
             int cardType; //這裡都0 沒啥用
@@ -51,10 +81,15 @@ int main()
     while (1) {
         loop ++;
         for (int i = 0; i < 2; i++) {//第二回合是敵人的
-            cin >> p[i].Health >> p[i].Mana >> p[i].Deck >> p[i].Rune; cin.ignore();
+            cin >> p[i].Health >> p[i].Mana >> p[i].Deck >> p[i].Rune >> p[i].Draw; cin.ignore();
         }
         int opponentHand; //敵人手上有多少牌
-        cin >> opponentHand; cin.ignore();
+        int opponentActions; // 敵人上回合使用多少action
+        cin >> opponentHand >> opponentActions; cin.ignore();
+        for (int i = 0; i < opponentActions; i++) { //可以有對手做了哪些動作的資訊 
+            string cardNumberAndAction;
+            getline(cin, cardNumberAndAction);
+        }
         int cardCount; //在board上和player上的牌 draft時 = 3，有多少牌的資訊
         cin >> cardCount; cin.ignore();
         vector <Card> myboard,enermyboard,myhand;
@@ -77,7 +112,7 @@ int main()
         // To debug: cerr << "Debug messages..." << endl;
         //可以用 ; 分開指令
         string opr;
-        if(loop <=30)
+        if(loop <=30) // 選牌階段
         {
             double maxpower;
             int chooseid = 0;
@@ -98,7 +133,7 @@ int main()
             }
             cout << "PICK " << chooseid << endl;
         }
-        else
+        else // 開始比賽
         {
             double maxpower;
             int chooseid = myhand[0].instanceId,choose_i = 0;
